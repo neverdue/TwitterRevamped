@@ -16,7 +16,7 @@ class User(UserMixin, Model):
 
     class Meta:
         database = DATABASE
-        order_by = ['-joined_at',]
+        order_by = ('-joined_at',)
 
     def get_posts(self):
         return Post.select().where(Post.user == self)
@@ -67,7 +67,7 @@ class Post(Model):
 
     class Meta:
         database = DATABASE
-        order_by = (desc('timestamp'),)
+        order_by = ('-timestamp',)
 
 
 class Relationship(Model):
