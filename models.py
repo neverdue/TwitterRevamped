@@ -66,7 +66,7 @@ class Post(Model):
 
     class Meta:
         database = DATABASE
-        order_by = sorted(('timestamp',), reverse=True)
+        order_by = ('-timestamp',)
 
 
 class Relationship(Model):
