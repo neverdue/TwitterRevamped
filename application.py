@@ -11,7 +11,7 @@ import models
 
 
 app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET')
+app.secret_key = "sdfsdfsdfdsfdsfsdfsfdsf"
 
 login_manager = LoginManager()
 login_manager.init_app(app)
