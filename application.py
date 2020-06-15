@@ -11,7 +11,7 @@ import models
 
 
 app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET')
+app.secret_key = "dsdsadasdasdas"
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -86,8 +86,7 @@ def post():
     form = forms.PostForm()
     if form.validate_on_submit():
         models.Post.create(user=g.user.id,
-                           content=form.content.data.strip(),
-                           timestamp=datetime.datetime.now())
+                           content=form.content.data.strip())
         flash("Message posted! Thanks!", "success")
         return redirect(url_for('index'))
     return render_template('post.html', form=form)
