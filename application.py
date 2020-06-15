@@ -94,7 +94,7 @@ def post():
 
 @app.route('/')
 def index():
-    stream = models.Post.select().limit(100).order_by('-timestamp')
+    stream = models.Post.select().limit(100)
     return render_template('stream.html', stream=stream)
 
 

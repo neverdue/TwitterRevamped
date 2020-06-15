@@ -5,7 +5,7 @@ from flask_bcrypt import generate_password_hash
 from flask_login import UserMixin
 from peewee import *
 
-DATABASE = SqliteDatabase('social.db', thread_safe=True)
+DATABASE = SqliteDatabase('social.db')
 
 class User(UserMixin, Model):
     username = CharField(unique=True)
@@ -61,7 +61,7 @@ class User(UserMixin, Model):
 
 
 class Post(Model):
-    timestamp = DateTimeField(default=datetime.datetime.now)
+    timestamp = DateTimeField()
     user = ForeignKeyField(User, backref="posts")
     content = TextField()
 
