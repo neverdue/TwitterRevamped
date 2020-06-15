@@ -11,7 +11,7 @@ import models
 
 
 app = Flask(__name__)
-app.secret_key = "sdfsdfsdfdsfdsfsdfsfdsf"
+app.secret_key = os.environ.get('SECRET')
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -86,7 +86,8 @@ def post():
     form = forms.PostForm()
     if form.validate_on_submit():
         models.Post.create(user=g.user.id,
-                           content=form.content.data.strip())
+                           content=form.content.data.strip(),
+                           timestamp=datetime.datetime.now())
         flash("Message posted! Thanks!", "success")
         return redirect(url_for('index'))
     return render_template('post.html', form=form)
@@ -94,7 +95,7 @@ def post():
 
 @app.route('/')
 def index():
-    stream = models.Post.select().limit(100)
+    stream = models.Post.select().order_by(models.Post.id.desc()).limit(100)
     return render_template('stream.html', stream=stream)
 
 
