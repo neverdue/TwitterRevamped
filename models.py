@@ -72,6 +72,25 @@ class User(UserMixin, db.Model):
         # db.session.close()
         return result
 
+    def followingStream(self):
+        """The users that we are following."""
+        list = []
+        # return (
+        #     User.select().join(
+        #         Relationship, on=Relationship.to_user
+        #     ).where(
+        #         Relationship.from_user == self
+        #     )
+        # )
+        # return (User.query.filter(Relationship.from_user == self).all())
+        # return db.session.query(Relationship).select_from(User).join(Relationship.to_user_id).filter(Relationship.from_user_id == self.id).first()
+        print(self.id)
+        # result = db.session.execute("select (users.id, username, email, password, joined_at) from users inner join relationship on (relationship.to_user_id = users.id) where (relationship.from_user_id = :self)", {"self": self.id})
+        result = db.session.query(User, Relationship).filter(Relationship.to_user_id == User.id).filter(Relationship.from_user_id == self.id).all()
+        # db.session.close()
+        list = [user for user, relationship in result]
+        return list
+
 
     def followers(self):
         """Get users following the current user"""
