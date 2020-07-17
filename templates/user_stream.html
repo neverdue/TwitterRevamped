@@ -8,26 +8,47 @@
     <div class="grid-50">
         <div class="grid-33">
             <h5>Posts</h5>
-            <p>{{ user.posts.count() }}</p>
+            <p>{{ user.posts|count }}</p>
         </div>
         <div class="grid-33">
             <h5>Followers</h5>
-            <p>{{ user.followers().count() }}</p>
+            <p>{{ user.followers()|count }}</p>
         </div>
         <div class="grid-33">
             <h5>Following</h5>
-            <p>{{ user.following().count() }}</p>
+            <p>{{ user.following()|count }}</p>
         </div>
     </div>
     <div class="grid-25">
         <!-- Follow/unfollow button -->
         {% if current_user.is_authenticated %}
+            {% set ns = namespace(flag=false) %}
             {% if user != current_user %}
+              {% if current_user.following() %}
+                <!-- {{user}} -->
+                <!-- {{current_user.following()}} -->
+                {% for following in current_user.following() if not ns.flag %}
+                    <!-- {{ following }} -->
+                      <!-- {{ ns.flag }} -->
+                      {% if user in following %}
+                          <!-- {{user}} -->
+                          {% set ns.flag = True %}
+                          <!-- {{following}} -->
+                          <!-- <a href="{{ url_for('follow', username=user.username) }}" class="small">Follow</a> -->
+                          <a href="{{ url_for('unfollow', username=user.username) }}" class="small">Unfollow</a>
+                      {% endif %}
+                {% endfor %}
+                <!-- {{ns.flag}} -->
+                {% if not ns.flag %}
+                  <a href="{{ url_for('follow', username=user.username) }}" class="small">Follow</a>
+                {% endif %}
+              {% else %}
                 {% if not user in current_user.following() %}
                     <a href="{{ url_for('follow', username=user.username) }}" class="small">Follow</a>
                 {% else %}
                     <a href="{{ url_for('unfollow', username=user.username) }}" class="small">Unfollow</a>
                 {% endif %}
+              {% endif %}
             {% endif %}
         {% endif %}
     </div>
