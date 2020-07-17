@@ -26,6 +26,7 @@
                 {% if not user in current_user.followingStream() %}
                     <a href="{{ url_for('follow', username=user.username) }}" class="small">Follow</a>
                 {% else %}
+                    {{user}}
                     <a href="{{ url_for('unfollow', username=user.username) }}" class="small">Unfollow</a>
                 {% endif %}
             {% endif %}
