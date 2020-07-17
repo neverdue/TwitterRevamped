@@ -209,7 +209,7 @@ def unfollow(username):
             #     from_user=g.user._get_current_object(),
             #     to_user=to_user
             # )
-            relationship = db.session.query(models.Relationship).filter(from_user_id=current_user.id, to_user_id=to_user.id).first()
+            relationship = db.session.query(models.Relationship).filter(and_((from_user_id=current_user.id), (to_user_id=to_user.id))).first()
             print(relationship)
             db.session.delete(relationship)
             db.session.commit()
