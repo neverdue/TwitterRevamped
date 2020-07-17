@@ -41,7 +41,7 @@ class User(UserMixin, db.Model):
         # print(self.following()[0][0])
         list = [user[0] for user in self.following()]
         if len(list) == 0:
-            return self.get_posts()
+            return []
         # print(list)
         # for user in list:
         #     print(f'get stream waala {user.id}')
