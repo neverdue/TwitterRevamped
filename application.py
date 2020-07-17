@@ -188,8 +188,8 @@ def follow(username):
             relationship = models.Relationship(from_user_id=current_user.id, to_user_id=to_user.id)
             db.session.add(relationship)
             db.session.commit()
-        # except models.IntegrityError:
-        #     pass
+        except models.IntegrityError:
+            abort(404)
         else:
             flash("You're now following {}!".format(to_user.username), "success")
     return redirect(url_for('stream', username=to_user.username))
@@ -213,8 +213,8 @@ def unfollow(username):
             print(relationship)
             db.session.delete(relationship)
             db.session.commit()
-        # except models.IntegrityError:
-        #     pass
+        except models.IntegrityError:
+            abort(404)
         else:
             flash("You've unfollowed {}!".format(to_user.username), "success")
     return redirect(url_for('stream', username=to_user.username))
