@@ -4,7 +4,6 @@ from sqlalchemy import desc
 from sqlalchemy import or_
 from flask_bcrypt import generate_password_hash
 from flask_sqlalchemy import SQLAlchemy
-from orderedset import OrderedSet
 from flask_login import UserMixin
 from peewee import *
 
