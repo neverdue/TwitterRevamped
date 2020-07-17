@@ -18,8 +18,7 @@ import models
 
 
 app = Flask(__name__)
-# app.secret_key = os.environ.get('SECRET')
-app.secret_key = 'dasdsadasdsadas'
+app.secret_key = os.environ.get('SECRET')
 
 # Configure database
 # app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
