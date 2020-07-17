@@ -33,10 +33,10 @@ login_manager.login_view = 'login'
 @login_manager.user_loader
 def load_user(userid):
     try:
-        db.session.close()
+        
         return models.User.query.get(int(userid))
     except models.DoesNotExist:
-        db.session.close()
+        
         return None
 
 
@@ -51,7 +51,7 @@ def load_user(userid):
 # @app.after_request
 # def after_request(response):
 #     """Close the database connection after each request."""
-#     db.session.close()
+#     
 #     return response
 
 
@@ -66,9 +66,9 @@ def register():
         user = models.User(username=username, email=email, password=hashed_pswd)
         db.session.add(user)
         db.session.commit()
-        db.session.close()
+        
         return redirect(url_for('index'))
-    db.session.close()
+    
     return render_template('register.html', form=form)
 
 
@@ -79,7 +79,7 @@ def login():
         try:
             # user = models.User.get(models.User.email == form.email.data)
             user = models.User.query.filter_by(email=form.email.data).first()
-            db.session.close()
+            
         except models.DoesNotExist:
             flash("Your email or password doesn't match!", "error")
         else:
@@ -89,7 +89,7 @@ def login():
                 return redirect(url_for('index'))
             else:
                 flash("Your email or password doesn't match!", "error")
-    db.session.close()
+    
     return render_template('login.html', form=form)
 
 
@@ -98,7 +98,7 @@ def login():
 def logout():
     logout_user()
     flash("You've been logged out! Come back soon!", "success")
-    db.session.close()
+    
     return redirect(url_for('index'))
 
 
@@ -114,16 +114,16 @@ def post():
         flash("Message posted! Thanks!", "success")
         db.session.add(post)
         db.session.commit()
-        db.session.close()
+        
         return redirect(url_for('index'))
-    db.session.close()
+    
     return render_template('post.html', form=form)
 
 
 @app.route('/')
 def index():
     stream = models.Post.query.order_by(models.Post.id.desc()).limit(100).all()
-    db.session.close()
+    
     return render_template('stream.html', stream=stream)
 
 
@@ -136,7 +136,7 @@ def stream(username=None):
             # user = models.User.select().where(
             #     models.User.username**username).get()
             user = models.User.query.filter(models.User.username.like(username)).first()
-            db.session.close()
+            
         except models.DoesNotExist:
             abort(404)
         else:
@@ -144,17 +144,17 @@ def stream(username=None):
             # user = models.User.query.filter(models.User.username.like(username)).first()
             # stream = models.Post.query.filter(models.Post.user_id == user.id).all()
             stream = user.get_posts()
-            db.session.close()
+            
     else:
         # stream = current_user.get_stream().limit(100)
         # user = models.User.query.filter(models.User.username.like(username)).first()
         stream = current_user.get_stream()
         user = current_user
-        db.session.close()
+        
         # stream = models.Post.query.filter(models.Post.user_id == user.id).all()
     if username:
         template = 'user_stream.html'
-    db.session.close()
+    
     return render_template(template, stream=stream, user=user)
 
 
@@ -164,8 +164,8 @@ def view_post(post_id):
     posts = models.Post.query.filter(models.Post.id == post_id).all()
     if len(posts) == 0:
         abort(404)
-        db.session.close()
-    db.session.close()
+        
+    
     return render_template('stream.html', stream=posts)
 
 
@@ -175,10 +175,10 @@ def follow(username):
     try:
         # to_user = models.User.get(models.User.username**username)
         to_user = models.User.query.filter(models.User.username.like(username)).first()
-        db.session.close()
+        
     except models.DoesNotExist:
         abort(404)
-        db.session.close()
+        
     else:
         try:
             # r = models.Relationship.create(
@@ -188,12 +188,12 @@ def follow(username):
             relationship = models.Relationship(from_user_id=current_user.id, to_user_id=to_user.id)
             db.session.add(relationship)
             db.session.commit()
-            db.session.close()
+            
         except models.IntegrityError:
             pass
         else:
             flash("You're now following {}!".format(to_user.username), "success")
-    db.session.close()
+    
     return redirect(url_for('stream', username=to_user.username))
 
 @app.route('/unfollow/<username>')
@@ -202,7 +202,7 @@ def unfollow(username):
     try:
         # to_user = models.User.get(models.User.username**username)
         to_user = models.User.query.filter(models.User.username.like(username)).first()
-        db.session.close()
+        
         print(to_user.username)
     except models.DoesNotExist:
         abort(404)
@@ -215,18 +215,18 @@ def unfollow(username):
             relationship = db.session.query(models.Relationship).filter_by(to_user_id=to_user.id).first()
             db.session.delete(relationship)
             db.session.commit()
-            db.session.close()
+            
         except models.IntegrityError:
             pass
         else:
             flash("You've unfollowed {}!".format(to_user.username), "success")
-    db.session.close()
+    
     return redirect(url_for('stream', username=to_user.username))
 
 
 @app.errorhandler(404)
 def not_found(error):
-    db.session.close()
+    
     return render_template('404.html'), 404
 
 
