@@ -26,9 +26,6 @@ class User(UserMixin, db.Model):
         self.email = email
         self.password = password
 
-    def convert(set):
-        return [*set, ]
-
     def get_posts(self):
         # return Post.select().where(Post.user == self)
         # db.session.close()
@@ -43,6 +40,8 @@ class User(UserMixin, db.Model):
         # print(self)
         # print(self.following()[0][0])
         list = [user[0] for user in self.following()]
+        if len(list) == 0:
+            return self.get_posts()
         # print(list)
         # for user in list:
         #     print(f'get stream waala {user.id}')
