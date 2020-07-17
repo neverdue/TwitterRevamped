@@ -11,13 +11,11 @@ from sqlalchemy import desc
 from sqlalchemy import or_, and_
 from flask_bcrypt import generate_password_hash
 from flask_sqlalchemy import SQLAlchemy
-from create import init_db, db_session
-from peewee import *
+from create import db_session, init_db
 
 import forms
 import models
 
-init_db()
 
 app = Flask(__name__)
 # app.secret_key = os.environ.get('SECRET')

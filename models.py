@@ -5,21 +5,23 @@ from sqlalchemy import or_
 from flask_bcrypt import generate_password_hash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
-from sqlalchemy import Column, Integer, String, DateTime, Text
+from sqlalchemy import create_engine
+from sqlalchemy import Column, Integer, String, DateTime, Text, ForeignKey
+from sqlalchemy.ext.declarative import declarative_base
 from create import Base, db_session
-from peewee import *
+from sqlalchemy.orm import sessionmaker, relationship
 
 
 class User(UserMixin, Base):
 
-    __tablename__ = "users"
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(25), unique=True, nullable=False)
-    email = db.Column(db.String(), unique=True, nullable=False)
-    password = db.Column(db.String(), nullable=False)
-    joined_at = db.Column(db.DateTime, default=datetime.datetime.now)
-    posts = db.relationship('Post', backref="user", lazy=True)
-    # is_admin = db.Column(db.Boolean, default=False)
+    __tablename__ = 'users'
+    id = Column(Integer, primary_key=True)
+    username = Column(String(25), unique=True, nullable=False)
+    email = Column(String(), unique=True, nullable=False)
+    password = Column(String(), nullable=False)
+    joined_at = Column(DateTime, default=datetime.datetime.now)
+    posts = relationship('Post', backref="user", lazy=True)
+    # is_admin = Column(Boolean, default=False)
 
 
     def __init__(self, username, email, password):
@@ -32,7 +34,7 @@ class User(UserMixin, Base):
 
     def get_posts(self):
         # return Post.select().where(Post.user == self)
-        # db.session.close()
+        # session.close()
         return Post.query.filter(Post.user == self).order_by(Post.timestamp.desc()).all()
 
     def get_stream(self):
@@ -55,7 +57,7 @@ class User(UserMixin, Base):
         result = Post.query.filter(cond).order_by(Post.timestamp.desc()).all()
         # store.update(result)
         # print(store)
-        # db.session.close()
+        # session.close()
         return result
 
     def following(self):
@@ -69,11 +71,11 @@ class User(UserMixin, Base):
         #     )
         # )
         # return (User.query.filter(Relationship.from_user == self).all())
-        # return db.session.query(Relationship).select_from(User).join(Relationship.to_user_id).filter(Relationship.from_user_id == self.id).first()
+        # return session.query(Relationship).select_from(User).join(Relationship.to_user_id).filter(Relationship.from_user_id == self.id).first()
         print(self.id)
-        # result = db.session.execute("select (users.id, username, email, password, joined_at) from users inner join relationship on (relationship.to_user_id = users.id) where (relationship.from_user_id = :self)", {"self": self.id})
+        # result = session.execute("select (users.id, username, email, password, joined_at) from users inner join relationship on (relationship.to_user_id = users.id) where (relationship.from_user_id = :self)", {"self": self.id})
         result = db_session.query(User, Relationship).filter(Relationship.to_user_id == User.id).filter(Relationship.from_user_id == self.id).all()
-        # db.session.close()
+        # session.close()
         return result
 
     def followingStream(self):
@@ -87,11 +89,11 @@ class User(UserMixin, Base):
         #     )
         # )
         # return (User.query.filter(Relationship.from_user == self).all())
-        # return db.session.query(Relationship).select_from(User).join(Relationship.to_user_id).filter(Relationship.from_user_id == self.id).first()
+        # return session.query(Relationship).select_from(User).join(Relationship.to_user_id).filter(Relationship.from_user_id == self.id).first()
         print(self.id)
-        # result = db.session.execute("select (users.id, username, email, password, joined_at) from users inner join relationship on (relationship.to_user_id = users.id) where (relationship.from_user_id = :self)", {"self": self.id})
+        # result = session.execute("select (users.id, username, email, password, joined_at) from users inner join relationship on (relationship.to_user_id = users.id) where (relationship.from_user_id = :self)", {"self": self.id})
         result = db_session.query(User, Relationship).filter(Relationship.to_user_id == User.id).filter(Relationship.from_user_id == self.id).all()
-        # db.session.close()
+        # session.close()
         list = [user for user, relationship in result]
         return list
 
@@ -107,13 +109,13 @@ class User(UserMixin, Base):
         #     )
         # )
             # User.query.filter(Relationship.to_user == self).all()
-        # return db.session.execute("select * from users as t1 inner join relationship as t2 on (:t2.from_user_id = t1.id) where (:t2.to_user_id = :self.id)", {"t2.from_user_id":2, "t2.to_user_id": 1, "self.id": self.id})
+        # return session.execute("select * from users as t1 inner join relationship as t2 on (:t2.from_user_id = t1.id) where (:t2.to_user_id = :self.id)", {"t2.from_user_id":2, "t2.to_user_id": 1, "self.id": self.id})
         # User.select().join(Relationship, on=Relationship.from_user).where(Relationship.to_user == self)
         # return (User.query.filter(Relationship.from_user == self).all())
         print(self.id)
-        # result = db.session.execute("select (users.id, username, email, password, joined_at) from users inner join relationship on (relationship.from_user_id = users.id) where (relationship.to_user_id = :self)", {"self": self.id})
+        # result = session.execute("select (users.id, username, email, password, joined_at) from users inner join relationship on (relationship.from_user_id = users.id) where (relationship.to_user_id = :self)", {"self": self.id})
         result = db_session.query(User, Relationship).filter(Relationship.from_user_id == User.id).filter(Relationship.to_user_id == self.id).all()
-        # db.session.close()
+        # session.close()
         return result
 
 
@@ -133,36 +135,36 @@ class User(UserMixin, Base):
 class Post(Base):
 
     __tablename__ = 'posts'
-    id = db.Column(db.Integer, primary_key=True)
-    timestamp = db.Column(db.DateTime, default=datetime.datetime.now)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
-    content = db.Column(db.Text, nullable=False)
+    id = Column(Integer, primary_key=True)
+    timestamp = Column(DateTime, default=datetime.datetime.now)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    content = Column(Text, nullable=False)
 
     def __init__(self, user_id, content):
         self.user_id = user_id
         self.content = content
 
-    # db.session.close()
+    # session.close()
 
-    class Meta:
-        database = db
-        order_by = ('-timestamp',)
+    # class Meta:
+    #     database = db
+    #     order_by = ('-timestamp',)
 
 
 class Relationship(Base):
 
     __tablename__ = 'relationship'
-    id = db.Column(db.Integer, primary_key=True)
-    from_user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
-    from_user = db.relationship("User", foreign_keys=[from_user_id], lazy=True)
-    to_user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
-    to_user = db.relationship("User", foreign_keys=[to_user_id], lazy=True)
-    # db.session.close()
-    class Meta:
-        database = db
-        indexes = (
-            ((('from_user', 'to_user'), True),)
-        )
+    id = Column(Integer, primary_key=True)
+    from_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    from_user = relationship("User", foreign_keys=[from_user_id], lazy=True)
+    to_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    to_user = relationship("User", foreign_keys=[to_user_id], lazy=True)
+    # session.close()
+    # class Meta:
+    #     database = db
+    #     indexes = (
+    #         ((('from_user', 'to_user'), True),)
+    #     )
 
 #
 # def initialize():
