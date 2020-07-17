@@ -16,6 +16,7 @@ from create import db_session, init_db
 import forms
 import models
 
+init_db()
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET')
@@ -33,10 +34,8 @@ login_manager.login_view = 'login'
 @login_manager.user_loader
 def load_user(userid):
     try:
-
         return models.User.query.get(int(userid))
     except models.DoesNotExist:
-
         return None
 
 
@@ -66,9 +65,7 @@ def register():
         user = models.User(username=username, email=email, password=hashed_pswd)
         db_session.add(user)
         db_session.commit()
-
         return redirect(url_for('index'))
-
     return render_template('register.html', form=form)
 
 
@@ -79,7 +76,6 @@ def login():
         try:
             # user = models.User.get(models.User.email == form.email.data)
             user = models.User.query.filter_by(email=form.email.data).first()
-
         except models.DoesNotExist:
             flash("Your email or password doesn't match!", "error")
         else:
@@ -89,7 +85,6 @@ def login():
                 return redirect(url_for('index'))
             else:
                 flash("Your email or password doesn't match!", "error")
-
     return render_template('login.html', form=form)
 
 
@@ -98,7 +93,6 @@ def login():
 def logout():
     logout_user()
     flash("You've been logged out! Come back soon!", "success")
-
     return redirect(url_for('index'))
 
 
@@ -114,16 +108,13 @@ def post():
         flash("Message posted! Thanks!", "success")
         db_session.add(post)
         db_session.commit()
-
         return redirect(url_for('index'))
-
     return render_template('post.html', form=form)
 
 
 @app.route('/')
 def index():
     stream = models.Post.query.order_by(models.Post.id.desc()).limit(100).all()
-
     return render_template('stream.html', stream=stream)
 
 
@@ -131,30 +122,30 @@ def index():
 @app.route('/stream/<username>')
 def stream(username=None):
     template = 'stream.html'
-    if username and username != current_user.username:
-        try:
-            # user = models.User.select().where(
-            #     models.User.username**username).get()
-            user = models.User.query.filter(models.User.username.like(username)).first()
-
-        except models.DoesNotExist:
-            abort(404)
+    if current_user.is_authenticated:
+        if username and username != current_user.username:
+            try:
+                # user = models.User.select().where(
+                #     models.User.username**username).get()
+                user = models.User.query.filter(models.User.username.like(username)).first()
+            except models.DoesNotExist:
+                abort(404)
+            else:
+                # stream = user.posts.limit(100)
+                # user = models.User.query.filter(models.User.username.like(username)).first()
+                # stream = models.Post.query.filter(models.Post.user_id == user.id).all()
+                stream = user.get_posts()
         else:
-            # stream = user.posts.limit(100)
+            # stream = current_user.get_stream().limit(100)
             # user = models.User.query.filter(models.User.username.like(username)).first()
+            stream = current_user.get_stream()
+            user = current_user
             # stream = models.Post.query.filter(models.Post.user_id == user.id).all()
-            stream = user.get_posts()
-
+        if username:
+            template = 'user_stream.html'
     else:
-        # stream = current_user.get_stream().limit(100)
-        # user = models.User.query.filter(models.User.username.like(username)).first()
-        stream = current_user.get_stream()
-        user = current_user
-
-        # stream = models.Post.query.filter(models.Post.user_id == user.id).all()
-    if username:
-        template = 'user_stream.html'
-
+        flash("Login before accessing this page", "error")
+        abort(404)
     return render_template(template, stream=stream, user=user)
 
 
@@ -164,8 +155,6 @@ def view_post(post_id):
     posts = models.Post.query.filter(models.Post.id == post_id).all()
     if len(posts) == 0:
         abort(404)
-
-
     return render_template('stream.html', stream=posts)
 
 
@@ -186,7 +175,6 @@ def follow(username):
             relationship = models.Relationship(from_user_id=current_user.id, to_user_id=to_user.id)
             db_session.add(relationship)
             db_session.commit()
-
         except models.IntegrityError:
             pass
         else:
@@ -212,7 +200,6 @@ def unfollow(username):
             print(relationship)
             db_session.delete(relationship)
             db_session.commit()
-
         except models.IntegrityError:
             pass
         else:
@@ -222,7 +209,6 @@ def unfollow(username):
 
 @app.errorhandler(404)
 def not_found(error):
-
     return render_template('404.html'), 404
 
 @app.teardown_appcontext
