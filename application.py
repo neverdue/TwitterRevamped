@@ -188,6 +188,7 @@ def follow(username):
             relationship = models.Relationship(from_user_id=current_user.id, to_user_id=to_user.id)
             db.session.add(relationship)
             db.session.commit()
+            db.session.close()
         except models.IntegrityError:
             pass
         else:
@@ -213,6 +214,7 @@ def unfollow(username):
             print(relationship)
             db.session.delete(relationship)
             db.session.commit()
+            db.session.close()
         except models.IntegrityError:
             pass
         else:
