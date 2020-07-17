@@ -5,11 +5,12 @@ from sqlalchemy import or_
 from flask_bcrypt import generate_password_hash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
+from sqlalchemy import Column, Integer, String, DateTime, Text
+from create import Base, db_session
 from peewee import *
 
-db = SQLAlchemy()
 
-class User(UserMixin, db.Model):
+class User(UserMixin, Base):
 
     __tablename__ = "users"
     id = db.Column(db.Integer, primary_key=True)
@@ -25,6 +26,9 @@ class User(UserMixin, db.Model):
         self.username = username
         self.email = email
         self.password = password
+
+    def __repr__(self):
+        return '<User %r>' % (self.name)
 
     def get_posts(self):
         # return Post.select().where(Post.user == self)
@@ -68,7 +72,7 @@ class User(UserMixin, db.Model):
         # return db.session.query(Relationship).select_from(User).join(Relationship.to_user_id).filter(Relationship.from_user_id == self.id).first()
         print(self.id)
         # result = db.session.execute("select (users.id, username, email, password, joined_at) from users inner join relationship on (relationship.to_user_id = users.id) where (relationship.from_user_id = :self)", {"self": self.id})
-        result = db.session.query(User, Relationship).filter(Relationship.to_user_id == User.id).filter(Relationship.from_user_id == self.id).all()
+        result = db_session.query(User, Relationship).filter(Relationship.to_user_id == User.id).filter(Relationship.from_user_id == self.id).all()
         # db.session.close()
         return result
 
@@ -86,7 +90,7 @@ class User(UserMixin, db.Model):
         # return db.session.query(Relationship).select_from(User).join(Relationship.to_user_id).filter(Relationship.from_user_id == self.id).first()
         print(self.id)
         # result = db.session.execute("select (users.id, username, email, password, joined_at) from users inner join relationship on (relationship.to_user_id = users.id) where (relationship.from_user_id = :self)", {"self": self.id})
-        result = db.session.query(User, Relationship).filter(Relationship.to_user_id == User.id).filter(Relationship.from_user_id == self.id).all()
+        result = db_session.query(User, Relationship).filter(Relationship.to_user_id == User.id).filter(Relationship.from_user_id == self.id).all()
         # db.session.close()
         list = [user for user, relationship in result]
         return list
@@ -108,7 +112,7 @@ class User(UserMixin, db.Model):
         # return (User.query.filter(Relationship.from_user == self).all())
         print(self.id)
         # result = db.session.execute("select (users.id, username, email, password, joined_at) from users inner join relationship on (relationship.from_user_id = users.id) where (relationship.to_user_id = :self)", {"self": self.id})
-        result = db.session.query(User, Relationship).filter(Relationship.from_user_id == User.id).filter(Relationship.to_user_id == self.id).all()
+        result = db_session.query(User, Relationship).filter(Relationship.from_user_id == User.id).filter(Relationship.to_user_id == self.id).all()
         # db.session.close()
         return result
 
@@ -126,7 +130,7 @@ class User(UserMixin, db.Model):
     #         raise ValueError("User already exists")
 
 
-class Post(db.Model):
+class Post(Base):
 
     __tablename__ = 'posts'
     id = db.Column(db.Integer, primary_key=True)
@@ -145,7 +149,7 @@ class Post(db.Model):
         order_by = ('-timestamp',)
 
 
-class Relationship(db.Model):
+class Relationship(Base):
 
     __tablename__ = 'relationship'
     id = db.Column(db.Integer, primary_key=True)
