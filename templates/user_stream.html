@@ -24,6 +24,9 @@
         {% if current_user.is_authenticated %}
             {% if user != current_user %}
                 {% if not user in current_user.followingStream() %}
+                    {{user}}
+                    {{current_user}}
+                    {{current_user.followingStream()}}
                     <a href="{{ url_for('follow', username=user.username) }}" class="small">Follow</a>
                 {% else %}
                     {{user}}
