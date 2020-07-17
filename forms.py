@@ -11,7 +11,6 @@ def name_exists(form, field):
     #     raise ValidationError('User with that name already exists.')
     if User.query.filter(User.username == field.data).first():
         raise ValidationError('User with that name already exists.')
-    db.session.close()
 
 
 def email_exists(form, field):
@@ -19,7 +18,6 @@ def email_exists(form, field):
     #     raise ValidationError('User with that email already exists.')
     if User.query.filter(User.email == field.data).first():
         raise ValidationError('User with that email already exists.')
-    db.session.close()
 
 
 class RegisterForm(Form):
