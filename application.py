@@ -123,7 +123,7 @@ def index():
 def stream(username=None):
     template = 'stream.html'
     if current_user.is_authenticated:
-        if username and username != current_user.username:
+        if username:
             try:
                 # user = models.User.select().where(
                 #     models.User.username**username).get()
@@ -135,14 +135,25 @@ def stream(username=None):
                 # user = models.User.query.filter(models.User.username.like(username)).first()
                 # stream = models.Post.query.filter(models.Post.user_id == user.id).all()
                 stream = user.get_posts()
-        else:
-            # stream = current_user.get_stream().limit(100)
-            # user = models.User.query.filter(models.User.username.like(username)).first()
-            stream = current_user.get_stream()
-            user = current_user
-            # stream = models.Post.query.filter(models.Post.user_id == user.id).all()
+        # else:
+        #     # stream = current_user.get_stream().limit(100)
+        #     # user = models.User.query.filter(models.User.username.like(username)).first()
+        #     stream = current_user.get_stream()
+        #     user = current_user
+        #     # stream = models.Post.query.filter(models.Post.user_id == user.id).all()
         if username:
             template = 'user_stream.html'
+    else:
+        flash("Login before accessing this page", "error")
+        abort(404)
+    return render_template(template, stream=stream, user=user)
+
+@app.route('/stream/following')
+def streamFollowing():
+    template = 'user_stream.html'
+    if current_user.is_authenticated:
+        stream = current_user.get_stream()
+        user = current_user
     else:
         flash("Login before accessing this page", "error")
         abort(404)
