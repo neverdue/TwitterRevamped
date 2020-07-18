@@ -8,7 +8,11 @@
         </h2>
         <!-- <i class="clock"></i><time data-time="{{ post.timestamp }}" class="distime" datetime="{{ post.timestamp.strftime('%b-%d %I:%M%p') }}">{{ post.timestamp }}</time>-->
         <p>{{ post.timestamp.strftime('%b-%d %I:%M%p') }}
-        <a href="{{ url_for('view_post', post_id=post.id) }}" class="view">View</a></p>
+          <a href="{{ url_for('view_post', post_id=post.id) }}" class="view" id="view">View</a>
+          {% if current_user.is_authenticated and post.user.id == current_user.id %}
+            <a href="{{ url_for('delete_post', post_id=post.id) }}" class="view" id="delete">Delete</a>
+          {% endif %}
+        </p>
         <div class="post">
             {{ post.content }}
         </div>

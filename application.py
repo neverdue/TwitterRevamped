@@ -157,6 +157,19 @@ def view_post(post_id):
         abort(404)
     return render_template('stream.html', stream=posts)
 
+@app.route('/post/delete/<int:post_id>')
+def delete_post(post_id):
+    # posts = models.Post.select().where(models.Post.id == post_id)
+    posts = models.Post.query.filter(models.Post.id == post_id).first()
+    if (posts):
+        db_session.delete(posts)
+        db_session.commit()
+        flash("You've successfully deleted the post!", "success")
+        return redirect(url_for('index'))
+    else:
+        abort(404)
+    # return render_template('stream.html', stream=posts)
+
 
 @app.route('/follow/<username>')
 @login_required
