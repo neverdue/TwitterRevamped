@@ -7,15 +7,11 @@ from models import User
 
 
 def name_exists(form, field):
-    # if User.select().where(User.username == field.data).exists():
-    #     raise ValidationError('User with that name already exists.')
     if User.query.filter(User.username == field.data).first():
         raise ValidationError('User with that name already exists.')
 
 
 def email_exists(form, field):
-    # if User.select().where(User.email == field.data).exists():
-    #     raise ValidationError('User with that email already exists.')
     if User.query.filter(User.email == field.data).first():
         raise ValidationError('User with that email already exists.')
 

@@ -8,7 +8,7 @@ for (var num in nav) {
             link.classList.toggle('current', false);
         }
     } catch (e) {
-        
+
     }
 }
 disTime(0);
